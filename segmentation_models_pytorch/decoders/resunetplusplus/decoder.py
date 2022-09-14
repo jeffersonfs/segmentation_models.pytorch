@@ -48,9 +48,9 @@ class ResUnetPlusPlusDecoder(nn.Module):
         self.upsample2 = Upsample_(2)
         self.up_residual_conv2 = ResidualConv(filters[3] + filters[1], filters[2], 1, 1)
 
-        self.attn3 = AttentionBlock(filters[0], filters[2], filters[2])
+        self.attn3 = AttentionBlock(32, filters[2], filters[2])
         self.upsample3 = Upsample_(2)
-        self.up_residual_conv3 = ResidualConv(filters[2] + filters[0], filters[1], 1, 1)
+        self.up_residual_conv3 = ResidualConv(72, filters[1], 1, 1)
 
         self.upsample4 = Upsample_(2)
         self.aspp_out = ASPP(filters[1], filters[-1])

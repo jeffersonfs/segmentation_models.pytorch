@@ -37,7 +37,7 @@ class Unet3Plus(SegmentationModel):
         )
 
         self.segmentation_head = SegmentationHead(
-            in_channels=decoder_channels[-1],
+            in_channels=160,
             out_channels=classes,
             activation=activation,
             kernel_size=3,

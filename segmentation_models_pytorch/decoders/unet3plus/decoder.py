@@ -14,7 +14,8 @@ class Unet3PlusDecoder(nn.Module):
         self.is_deconv = is_deconv
         self.is_batchnorm = is_batchnorm
         # (16, 24, 40, 112, 320)
-        filters = [16, 24, 40, 112, 320]
+        filters = [32, 24, 40, 112, 320]
+        # filters = [320, 112, 40, 24, 16]
 
 
         ## -------------Decoder--------------
@@ -162,16 +163,18 @@ class Unet3PlusDecoder(nn.Module):
         self.bn1d_1 = nn.BatchNorm2d(self.UpChannels)
         self.relu1d_1 = nn.ReLU(inplace=True)
 
+        self.final_upsample = nn.Upsample(scale_factor=2, mode='bilinear')  # 14*14
 
     def forward(self, *features):
 
 
-        h1 = features[0]
-        h2 = features[1]
-        h3 = features[2]
-        h4 = features[3]
-        h5 = features[4]
+        h1 = features[1]
+        h2 = features[2]
+        h3 = features[3]
+        h4 = features[4]
+        h5 = features[5]
         hd5 = features[5]
+
 
         ## -------------Decoder-------------
         h1_PT_hd4 = self.h1_PT_hd4_relu(self.h1_PT_hd4_bn(self.h1_PT_hd4_conv(self.h1_PT_hd4(h1))))
@@ -201,6 +204,7 @@ class Unet3PlusDecoder(nn.Module):
         hd4_UT_hd1 = self.hd4_UT_hd1_relu(self.hd4_UT_hd1_bn(self.hd4_UT_hd1_conv(self.hd4_UT_hd1(hd4))))
         hd5_UT_hd1 = self.hd5_UT_hd1_relu(self.hd5_UT_hd1_bn(self.hd5_UT_hd1_conv(self.hd5_UT_hd1(hd5))))
         hd1 = self.relu1d_1(self.bn1d_1(self.conv1d_1(torch.cat((h1_Cat_hd1, hd2_UT_hd1, hd3_UT_hd1, hd4_UT_hd1, hd5_UT_hd1), 1)))) # hd1->320*320*UpChannels
+        final = self.final_upsample(hd1)
 
-        return hd1
+        return final
 

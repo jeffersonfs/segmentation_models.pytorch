@@ -15,15 +15,14 @@ class ResUnetDecoder(nn.Module):
         self.upsample_1 = Upsample(filters[2], filters[2], 2, 2)
         self.up_residual_conv1 = ResidualConv(filters[4] + filters[2], filters[2], 1, 1)
 
-        self.upsample_2 = Upsample(filters[2], filters[2], 2, 2)
-        self.up_residual_conv2 = ResidualConv(filters[2] + filters[1], filters[1], 1, 1)
+        self.upsample_2 = Upsample(filters[2], filters[2], 4, 4)
+        self.up_residual_conv2 = ResidualConv(80, 80, 1, 1)
 
-        self.upsample_3 = Upsample(filters[1], filters[1], 2, 2)
-        self.up_residual_conv3 = ResidualConv(filters[1] + filters[0], filters[0], 1, 1)
+        self.upsample_3 = Upsample(80, 80, 4, 4)
+        self.up_residual_conv3 = ResidualConv(112, 16, 1, 1)
 
         self.output_layer = nn.Sequential(
-            nn.Conv2d(filters[0], 1, 1, 1),
-            nn.Sigmoid(),
+            nn.Upsample(scale_factor=2, mode='bilinear'),  # 14*14
         )
 
     def forward(self, *features):
