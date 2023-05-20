@@ -20,12 +20,14 @@ from .timm_sknet import timm_sknet_encoders
 from .timm_mobilenetv3 import timm_mobilenetv3_encoders
 from .timm_gernet import timm_gernet_encoders
 from .mix_transformer import mix_transformer_encoders
+from .swin_transformer import swin_transformer_encoders
 
 from .timm_universal import TimmUniversalEncoder
 
 from ._preprocessing import preprocess_input
 
 encoders = {}
+encoders.update(swin_transformer_encoders)
 encoders.update(resnet_encoders)
 encoders.update(dpn_encoders)
 encoders.update(vgg_encoders)
