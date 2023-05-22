@@ -621,8 +621,8 @@ class SwinTransformer(nn.Module):
 
         return tuple(outs)
 
-    def forward_features(self, x):
-        return self.forward(x)
+    # def forward_features(self, x):
+    #     return self.forward(x)
 
     def train(self, mode=True):
         """Convert the model into training mode while keep layers freezed."""
@@ -653,17 +653,28 @@ class SwinTransformerEncoder(SwinTransformer, EncoderMixin):
         B, C, H, W = x.shape
         dummy = torch.empty([B, 0, H // 2, W // 2], dtype=x.dtype, device=x.device)
 
-        return [x, dummy] + self.forward_features(x)[: self._depth - 1]
+        return [x, dummy] + list(super().forward(x)[: self._depth - 1])
 
     def load_state_dict(self, state_dict):
+        state_dict = state_dict["model"]
+        # "norm.weight", "norm.bias", 
+        for l in ["norm.weight", 
+                  "norm.bias",
+                  "layers.0.blocks.1.attn_mask",
+                  "layers.1.blocks.1.attn_mask", 
+                  "layers.2.blocks.1.attn_mask", 
+                  "layers.2.blocks.3.attn_mask", 
+                  "layers.2.blocks.5.attn_mask" ]:
+            state_dict.pop(l, None)
+        # 
         state_dict.pop("head.weight", None)
         state_dict.pop("head.bias", None)
-        return super().load_state_dict(state_dict)
+        return super().load_state_dict(state_dict, strict=False)
 
 
 def get_pretrained_cfg(name):
     return {
-        "url": "https://github.com/SwinTransformer/storage/releases/download/v1.0.8/{}.pth".format(name),
+        "url": " https://github.com/jeffersonfs/segmentation_models.pytorch/releases/download/v0.0.1-alpha/{}.pth".format(name),
         "mean": [0.485, 0.456, 0.406],
         "std": [0.229, 0.224, 0.225],
     }
