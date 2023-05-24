@@ -11,6 +11,7 @@ import torch.nn.functional as F
 import torch.utils.checkpoint as checkpoint
 import numpy as np
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
+import torch.nn.functional as F
 
 from functools import partial
 
@@ -653,7 +654,24 @@ class SwinTransformerEncoder(SwinTransformer, EncoderMixin):
         B, C, H, W = x.shape
         dummy = torch.empty([B, 0, H // 2, W // 2], dtype=x.dtype, device=x.device)
 
-        return [x, dummy] + list(super().forward(x)[: self._depth - 1])
+        # r = [x, dummy] + list(super().forward(x)[: self._depth - 1])
+        # print(len(r))
+
+        features = super().forward(x)
+
+
+        new_features = []
+        factor = 2
+        for f in features:
+            new_features.append(F.interpolate(input=f, 
+                                              scale_factor=factor, 
+                                              mode="bilinear", 
+                                              align_corners=False, 
+                                              recompute_scale_factor=True))
+        # for f in features:
+        #     print(f.size())
+
+        return [x] + list(new_features[: self._depth - 1]) # [x, features[0]] + list(features)
 
     def load_state_dict(self, state_dict):
         state_dict = state_dict["model"]
@@ -689,7 +707,7 @@ swin_transformer_encoders = {
         "params": dict(
             patch_size=4,
             num_heads=[3, 6, 12, 24],
-            out_channels=[96, 192, 384, 768],
+            out_channels=[3, 96, 192, 384, 768],
             qkv_bias=True,
             norm_layer=partial(nn.LayerNorm, eps=1e-6),
             depths=[2, 2, 6, 2],

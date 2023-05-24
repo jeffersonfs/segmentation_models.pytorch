@@ -21,23 +21,28 @@ class Unet3Plus(SegmentationModel):
         classes: int = 1,
         activation: Optional[Union[str, callable]] = None,
         aux_params: Optional[dict] = None,
+        filters=[32, 24, 40, 112, 320],
+        features_indices=[0,1,2,3,4],
     ):
         super().__init__()
-
+        
         self.encoder = get_encoder(
             encoder_name,
             in_channels=in_channels,
             depth=encoder_depth,
             weights=encoder_weights,
+           
         )
 
         self.decoder = Unet3PlusDecoder(
             n_channels=self.encoder.out_channels,
             is_batchnorm=decoder_use_batchnorm,
+            filters=filters,
+            features_indices=features_indices
         )
 
         self.segmentation_head = SegmentationHead(
-            in_channels=160,
+            in_channels=decoder_channels[-1],
             out_channels=classes,
             activation=activation,
             kernel_size=3,
