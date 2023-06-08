@@ -692,7 +692,7 @@ class SwinTransformerEncoder(SwinTransformer, EncoderMixin):
 
 def get_pretrained_cfg(name):
     return {
-        "url": " https://github.com/jeffersonfs/segmentation_models.pytorch/releases/download/v0.0.1-alpha/{}.pth".format(name),
+        "url": " https://github.com/jeffersonfs/segmentation_models.pytorch/releases/download/v0.0.2-alpha/{}.pth".format(name),
         "mean": [0.485, 0.456, 0.406],
         "std": [0.229, 0.224, 0.225],
     }
